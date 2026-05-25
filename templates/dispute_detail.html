@@ -1,0 +1,63 @@
+
+{% extends "base.html" %}
+{% block title %}Спор #{{ dispute.id }} — HomeHero{% endblock %}
+{% block content %}
+<section class="page-head compact">
+  <div>
+    <h1>Спор #{{ dispute.id }}</h1>
+    <p>Заказ #{{ dispute.order_id }} — {{ dispute.order_title }}</p>
+  </div>
+  <span class="ticket-status {{ dispute.status }}">{{ dispute_status_labels[dispute.status] }}</span>
+</section>
+
+<section class="section split">
+  <div class="panel">
+    <h2>{{ dispute.reason }}</h2>
+    <p><strong>Позиция клиента/стороны:</strong></p>
+    <p>{{ dispute.customer_position }}</p>
+    {% if dispute.resolution %}
+      <div class="warranty-card"><strong>Решение поддержки</strong><p>{{ dispute.resolution }}</p></div>
+    {% endif %}
+    <a class="btn btn-light full" href="{{ url_for('order_detail', order_id=dispute.order_id) }}">Открыть заказ</a>
+  </div>
+
+  <div class="panel">
+    <h2>Решение поддержки</h2>
+    {% if g.user.role in ['admin','support'] %}
+      <form method="post" class="mini-form">
+        <input type="hidden" name="action" value="resolve">
+        <label>Статус
+          <select name="status">
+            {% for key, label in dispute_status_labels.items() %}
+              <option value="{{ key }}" {% if dispute.status == key %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>Решение<textarea name="resolution" placeholder="Например: возврат клиенту, повторный выезд, выплата мастеру">{{ dispute.resolution }}</textarea></label>
+        <button class="btn btn-primary full">Сохранить решение</button>
+      </form>
+    {% else %}
+      <p class="muted">Решение принимает сотрудник поддержки.</p>
+    {% endif %}
+  </div>
+</section>
+
+<section class="section panel">
+  <h2>Обсуждение спора</h2>
+  <div class="chat-box">
+    {% for m in messages %}
+      <div class="chat-message {% if m.sender_id == g.user.id %}mine{% endif %}">
+        <div class="chat-meta"><strong>{{ m.sender_name }}</strong><small>{{ m.sender_role }} • {{ m.created_at }}</small></div>
+        <p>{{ m.message }}</p>
+      </div>
+    {% else %}
+      <p class="muted">Сообщений пока нет.</p>
+    {% endfor %}
+  </div>
+  <form method="post" class="reply-form">
+    <input type="hidden" name="action" value="message">
+    <label>Сообщение<textarea name="message" required placeholder="Добавьте аргументы, фото приложите в заказе"></textarea></label>
+    <button class="btn btn-primary">Отправить</button>
+  </form>
+</section>
+{% endblock %}

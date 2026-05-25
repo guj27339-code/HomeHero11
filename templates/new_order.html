@@ -1,0 +1,82 @@
+
+{% extends "base.html" %}
+{% block title %}Новая заявка — HomeHero{% endblock %}
+{% block content %}
+<section class="auth-layout wide">
+  <form class="card form-card wide-card" method="post" enctype="multipart/form-data">
+    <div class="form-title">
+      <span class="brand-mark">+</span>
+      <div>
+        <h1>Создать заявку</h1>
+        <p>Умная анкета поможет мастеру точнее оценить задачу, стоимость и время приезда.</p>
+      </div>
+    </div>
+
+    {% if master %}
+      <div class="notice">Мастер выбран: <strong>{{ master.name }}</strong></div>
+      <input type="hidden" name="master_id" value="{{ master.id }}">
+    {% endif %}
+
+    <label>Категория
+      <select name="category_id" id="category-select" required>
+        {% for cat in categories %}
+          <option value="{{ cat.id }}" data-name="{{ cat.name }}" {% if selected_category_id == cat.id %}selected{% endif %}>{{ cat.icon }} {{ cat.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <div class="smart-intake">
+      <h2>Умная анкета по услуге</h2>
+      <p class="muted">Заполните несколько вопросов — это выглядит профессионально и помогает избежать споров.</p>
+      {% for category, questions in smart_questions.items() %}
+        <div class="question-pack" data-category="{{ category }}">
+          {% for q in questions %}
+            <label>{{ q }}
+              <input name="question_{{ q|replace(' ', '_')|replace('?', '')|replace(':', '') }}" placeholder="Ваш ответ">
+            </label>
+          {% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+
+    <label>Название задачи<input name="title" required placeholder="Например: починить розетку"></label>
+    <label>Описание<textarea name="description" required placeholder="Что нужно сделать? Какие детали важны?"></textarea></label>
+
+    <div class="two">
+      <label>Адрес<input name="address" required placeholder="Москва, улица..."></label>
+      <label>Район обслуживания
+        <select name="service_area">
+          <option value="">Выберите район</option>
+          {% for area in service_areas %}
+            <option value="{{ area.name }}">{{ area.name }} • выезд {{ area.base_trip_price }} ₽ • ~{{ area.avg_arrival_minutes }} мин</option>
+          {% endfor %}
+        </select>
+      </label>
+    </div>
+
+    <div class="two">
+      <label>Дата и время<input type="datetime-local" name="scheduled_at" required></label>
+      <label>Фото проблемы
+        <input type="file" name="problem_photo" accept="image/png,image/jpeg,image/webp">
+        <small class="muted">Можно прикрепить фото поломки или места работы.</small>
+      </label>
+    </div>
+
+    <div class="two">
+      <label>Бюджет, ₽<input type="number" name="budget" min="500" step="100" value="3000" required></label>
+      <label>Промокод
+        <input name="promo_code" placeholder="FIRST10">
+        <small class="muted">Доступно: {% for p in promo_codes %}{{ p.code }}{% if not loop.last %}, {% endif %}{% endfor %}</small>
+      </label>
+    </div>
+
+    <label class="legal-check">
+      <input type="checkbox" name="urgent">
+      <span><strong>Срочный вызов сегодня</strong> — заказ получает пометку срочности, стоимость увеличивается на 20%.</span>
+    </label>
+
+    <div class="notice">После создания заказа откроется демо-оплата. В MVP она имитирует заморозку средств безопасной сделкой.</div>
+    <button class="btn btn-primary full">Создать заявку и перейти к оплате</button>
+  </form>
+</section>
+{% endblock %}

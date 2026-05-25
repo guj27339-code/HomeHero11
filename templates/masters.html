@@ -1,0 +1,60 @@
+
+{% extends "base.html" %}
+{% block title %}Мастера — HomeHero{% endblock %}
+{% block content %}
+<section class="page-head compact">
+  <div>
+    <h1>Проверенные мастера</h1>
+    <p>Фильтруйте по категории, городу, рейтингу и цене.</p>
+  </div>
+  <a class="btn btn-primary" href="{{ url_for('become_master') if g.user else url_for('register') }}">Стать мастером</a>
+</section>
+
+<form class="filter-bar" method="get">
+  <select name="category">
+    <option value="">Все категории</option>
+    {% for cat in nav_categories %}
+      <option value="{{ cat.name }}" {% if selected_category == cat.name %}selected{% endif %}>{{ cat.name }}</option>
+    {% endfor %}
+  </select>
+  <input name="city" placeholder="Город" value="{{ selected_city }}">
+  <select name="sort">
+    <option value="rating" {% if sort == 'rating' %}selected{% endif %}>По рейтингу</option>
+    <option value="orders" {% if sort == 'orders' %}selected{% endif %}>По заказам</option>
+    <option value="price" {% if sort == 'price' %}selected{% endif %}>По цене</option>
+  </select>
+  <button class="btn btn-primary">Показать</button>
+</form>
+
+<section class="grid cards-3 section">
+  {% for m in masters %}
+    <article class="master-card">
+      <div class="master-top">
+        <span class="avatar large">{% if avatar_src(m) %}<img src="{{ avatar_src(m) }}" alt="avatar">{% else %}{{ m.avatar }}{% endif %}</span>
+        <div>
+          <h3>{{ m.name }}</h3>
+          <p>{{ m.city }}</p>
+        </div>
+        {% if m.verified %}<span class="badge green">Проверен</span>{% endif %}
+      </div>
+      <p class="muted">{{ m.bio }}</p>
+      <div class="tags">
+        {% for tag in m.categories.split(',') %}
+          <span>{{ tag }}</span>
+        {% endfor %}
+      </div>
+      <div class="master-meta">
+        <b>{{ m.rating }}★</b>
+        <span>{{ m.completed_orders }} заказов</span>
+        <span>от {{ m.hourly_rate }} ₽/ч</span>
+      </div>
+      <div class="row-actions">
+        <a class="btn btn-primary" href="{{ url_for('new_order', master_id=m.id) if g.user else url_for('register') }}">Заказать</a>
+        <a class="btn btn-light" href="{{ url_for('master_detail', master_id=m.id) }}">Профиль</a>
+      </div>
+    </article>
+  {% else %}
+    <div class="empty">Мастера не найдены.</div>
+  {% endfor %}
+</section>
+{% endblock %}

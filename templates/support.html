@@ -1,0 +1,60 @@
+
+{% extends "base.html" %}
+{% block title %}Поддержка — HomeHero{% endblock %}
+{% block content %}
+<section class="page-head compact">
+  <div>
+    <h1>Поддержка HomeHero</h1>
+    <p>Создайте обращение по заказу, спору, возврату, безопасности или качеству работы. Если вы пришли из карточки заказа, он будет выбран автоматически.</p>
+  </div>
+  {% if g.user.role in ['admin','support'] %}
+    <a class="btn btn-primary" href="{{ url_for('support_panel') }}">Панель поддержки</a>
+  {% endif %}
+</section>
+
+<section class="section split">
+  <form class="card form-card wide-card" method="post">
+    <div class="form-title">
+      <span class="brand-mark">?</span>
+      <div><h1>Новое обращение</h1><p>Ответ сотрудника появится в чате заявки.</p></div>
+    </div>
+    <label>Заказ
+      <select name="order_id">
+        <option value="">Без привязки к заказу</option>
+        {% for o in orders %}<option value="{{ o.id }}" {% if request.args.get("order_id", type=int) == o.id %}selected{% endif %}>#{{ o.id }} — {{ o.title }}</option>{% endfor %}
+      </select>
+    </label>
+    <div class="two">
+      <label>Тема<input name="topic" required placeholder="Например: проблема с качеством работы"></label>
+      <label>Приоритет
+        <select name="priority">
+          <option value="normal">Обычный</option>
+          <option value="high">Высокий</option>
+          <option value="critical">Критичный: безопасность</option>
+          <option value="low">Низкий</option>
+        </select>
+      </label>
+    </div>
+    <label>Сообщение<textarea name="message" required placeholder="Опишите ситуацию подробно: что произошло, номер заказа, желаемое решение"></textarea></label>
+    <button class="btn btn-primary full">Отправить обращение</button>
+  </form>
+
+  <div class="panel">
+    <h2>Мои обращения</h2>
+    {% if tickets %}
+      {% for t in tickets %}
+        <a class="ticket-line" href="{{ url_for('ticket_detail', ticket_id=t.id) }}">
+          <div>
+            <strong>#{{ t.id }} — {{ t.topic }}</strong>
+            <small>{{ ticket_status_labels[t.status] }} • {{ ticket_priority_labels[t.priority] if t.priority else 'Обычный' }}</small>
+          </div>
+          <span>Открыть →</span>
+        </a>
+      {% endfor %}
+    {% else %}
+      <p class="muted">У вас пока нет обращений.</p>
+    {% endif %}
+    <div class="notice">При угрозе жизни или здоровью сначала обращайтесь в экстренные службы. HomeHero помогает сохранить историю заказа и заблокировать нарушителя.</div>
+  </div>
+</section>
+{% endblock %}

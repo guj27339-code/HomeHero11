@@ -1,0 +1,58 @@
+
+{% extends "base.html" %}
+{% block title %}Регистрация — HomeHero{% endblock %}
+{% block content %}
+<section class="auth-layout auth-top">
+  <form class="card form-card register-card" method="post" data-password-form>
+    <div class="form-title compact-title">
+      <span class="brand-mark">HH</span>
+      <div><h1>Регистрация</h1><p>Создайте аккаунт клиента или мастера. После регистрации нужна верификация.</p></div>
+    </div>
+
+    <div class="two">
+      <label>Имя<input name="name" required placeholder="Иван Иванов"></label>
+      <label>Город<input name="city" value="Москва"></label>
+    </div>
+
+    <div class="two">
+      <label>Email<input type="email" name="email" required placeholder="you@example.ru"></label>
+      <label>Телефон<input name="phone" placeholder="+7 900 000-00-00"></label>
+    </div>
+
+    <div class="two">
+      <label>Пароль
+        <div class="password-field">
+          <input type="password" name="password" required minlength="8" data-password placeholder="Минимум 8 символов">
+          <button type="button" class="show-password" data-show-password>Показать</button>
+        </div>
+        <span class="password-meter"><i data-password-bar></i></span>
+        <small class="password-hint" data-password-hint>Добавьте буквы, цифры и минимум 8 символов.</small>
+      </label>
+      <label>Роль
+        <select name="role">
+          <option value="customer">Клиент</option>
+          <option value="master">Мастер</option>
+        </select>
+      </label>
+    </div>
+
+    <label class="legal-check">
+      <input type="checkbox" name="agree_terms" required>
+      <span>
+        Я принимаю <a href="{{ url_for('legal') }}" target="_blank">пользовательское соглашение</a>,
+        <a href="{{ url_for('privacy') }}" target="_blank">политику обработки персональных данных</a>
+        и понимаю, что для заказа услуг нужна верификация личности.
+      </span>
+    </label>
+
+    <button class="btn btn-primary full">Создать аккаунт</button>
+
+    <div class="security-note">
+      <strong>После регистрации:</strong>
+      заполните паспортные данные на странице верификации. Без подтверждения нельзя создать заказ или принимать заявки.
+    </div>
+
+    <p class="center bottom-link">Уже есть аккаунт? <a href="{{ url_for('login') }}">Войти</a></p>
+  </form>
+</section>
+{% endblock %}

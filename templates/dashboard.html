@@ -1,0 +1,80 @@
+
+{% extends "base.html" %}
+{% block title %}Кабинет — HomeHero{% endblock %}
+{% block content %}
+<section class="page-head compact">
+  <div>
+    <h1>Личный кабинет</h1>
+    <p>{{ g.user.name }} • {{ g.user.city }} • {{ g.user.role }}</p>
+  </div>
+  <div class="row-actions">
+    {% if g.user.role in ['admin','support'] %}
+      <a class="btn btn-primary" href="{{ url_for('support_panel') }}">Панель поддержки</a>
+    {% else %}
+      <a class="btn btn-primary" href="{{ url_for('new_order') }}">Новая заявка</a>
+    {% endif %}
+    <a class="btn btn-light" href="{{ url_for('profile') }}">Профиль</a>
+  </div>
+</section>
+
+{% if not is_verified(g.user) %}
+<section class="section">
+  <div class="verification-alert">
+    <div>
+      <strong>Аккаунт не верифицирован</strong>
+      <p>Чтобы создавать заказы или принимать заявки, отправьте паспортные данные на проверку.</p>
+    </div>
+    <a class="btn btn-primary" href="{{ url_for('verification') }}">Пройти верификацию</a>
+  </div>
+</section>
+{% endif %}
+
+<section class="grid cards-3">
+  <div class="metric"><span>Роль</span><strong>{{ g.user.role }}</strong></div>
+  <div class="metric"><span>Город</span><strong>{{ g.user.city }}</strong></div>
+  <div class="metric"><span>Верификация</span><strong>{{ verification_status_labels[g.user.verification_status] }}</strong></div>
+  <div class="metric"><span>Баланс</span><strong>{{ g.user.balance }} ₽</strong></div>
+</section>
+
+<section class="section split">
+  <div class="panel">
+    <div class="section-head"><h2>Последние заказы</h2><a href="{{ url_for('orders') }}">Все →</a></div>
+    {% if orders %}
+      {% for o in orders %}
+        <a class="order-line" href="{{ url_for('order_detail', order_id=o.id) }}">
+          <span>{{ o.category_icon }}</span>
+          <div><strong>{{ o.title }}</strong><small>{{ status_labels[o.status] }} • {{ o.budget }} ₽</small></div>
+        </a>
+      {% endfor %}
+    {% else %}
+      <p class="muted">Пока нет заказов.</p>
+    {% endif %}
+  </div>
+
+  <div class="panel">
+    <div class="section-head">
+      <h2>{% if g.user.role in ['admin','support'] %}Активные обращения{% else %}Поддержка{% endif %}</h2>
+      <a href="{{ url_for('support_panel') if g.user.role in ['admin','support'] else url_for('support') }}">
+        {% if g.user.role in ['admin','support'] %}Панель →{% else %}Написать →{% endif %}
+      </a>
+    </div>
+    {% if tickets %}
+      {% for t in tickets %}
+        <a class="ticket-line" href="{{ url_for('ticket_detail', ticket_id=t.id) }}">
+          <div>
+            <strong>#{{ t.id }} — {{ t.topic }}</strong>
+            <small>
+              {{ ticket_status_labels[t.status] }}
+              {% if t.priority %} • {{ ticket_priority_labels[t.priority] }}{% endif %}
+              {% if t.user_name %} • {{ t.user_name }}{% endif %}
+            </small>
+          </div>
+          <span>Открыть →</span>
+        </a>
+      {% endfor %}
+    {% else %}
+      <p class="muted">Нет обращений. При спорной ситуации поддержка поможет с возвратом, гарантией или блокировкой нарушителя.</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

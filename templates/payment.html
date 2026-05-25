@@ -1,0 +1,50 @@
+
+{% extends "base.html" %}
+{% block title %}Демо-оплата — HomeHero{% endblock %}
+{% block content %}
+<section class="page-head compact">
+  <div>
+    <h1>Демо-оплата заказа #{{ order.id }}</h1>
+    <p>Это учебная имитация оплаты: деньги не списываются, но логика безопасной сделки показывается как в реальном сервисе.</p>
+  </div>
+  <span class="balance-pill">{{ order.budget }} ₽</span>
+</section>
+
+<section class="section split">
+  <form class="panel payment-card" method="post">
+    <h2>Оплатить через DemoPay</h2>
+    <p class="muted">Нажмите «Заморозить средства», чтобы создать запись платежа и перевести заказ в статус безопасной сделки.</p>
+    <label>Карта
+      <input name="card_mask" value="**** 4242" placeholder="**** 4242">
+    </label>
+    <div class="payment-visual">
+      <strong>HomeHero DemoPay</strong>
+      <span>**** **** **** 4242</span>
+      <small>SAFE DEAL</small>
+    </div>
+    <button class="btn btn-primary full" name="action" value="demo_pay">Заморозить средства</button>
+    <button class="btn btn-light full" name="action" value="demo_fail">Смоделировать ошибку оплаты</button>
+    {% if g.user.role in ['admin','support'] %}
+      <button class="btn btn-danger full" name="action" value="refund">Оформить демо-возврат</button>
+    {% endif %}
+  </form>
+
+  <div class="panel">
+    <h2>История платежа</h2>
+    {% if payment %}
+      <div class="info-grid one-col">
+        <div><span>Провайдер</span><strong>{{ payment.provider }}</strong></div>
+        <div><span>Сумма</span><strong>{{ payment.amount }} ₽</strong></div>
+        <div><span>Статус</span><strong>{{ payment_event_labels[payment.status] if payment.status in payment_event_labels else payment.status }}</strong></div>
+        <div><span>Карта</span><strong>{{ payment.card_mask }}</strong></div>
+      </div>
+      {% for e in events %}
+        <div class="ticket-line"><div><strong>{{ payment_event_labels[e.event] if e.event in payment_event_labels else e.event }}</strong><small>{{ e.created_at }}</small><p>{{ e.note }}</p></div></div>
+      {% endfor %}
+    {% else %}
+      <p class="muted">Платёж ещё не создан.</p>
+    {% endif %}
+    <a class="btn btn-light full" href="{{ url_for('order_detail', order_id=order.id) }}">Вернуться к заказу</a>
+  </div>
+</section>
+{% endblock %}

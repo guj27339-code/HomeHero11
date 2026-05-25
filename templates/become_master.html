@@ -1,0 +1,25 @@
+
+{% extends "base.html" %}
+{% block title %}Стать мастером — HomeHero{% endblock %}
+{% block content %}
+<section class="auth-layout wide">
+  <form class="card form-card wide-card" method="post">
+    <div class="form-title">
+      <span class="brand-mark">✓</span>
+      <div><h1>Стать мастером HomeHero</h1><p>Получайте заказы, рейтинг и безопасные выплаты.</p></div>
+    </div>
+    <div class="two">
+      <label>Опыт, лет<input type="number" name="experience_years" min="0" value="1" required></label>
+      <label>Ставка, ₽/ч<input type="number" name="hourly_rate" value="1200" required></label>
+    </div>
+    <h3>Категории</h3>
+    <div class="checks">
+      {% for cat in categories %}
+        <label><input type="checkbox" name="categories" value="{{ cat.name }}"> {{ cat.icon }} {{ cat.name }}</label>
+      {% endfor %}
+    </div>
+    <div class="notice">После отправки анкеты статус будет «На проверке». Администратор сможет подтвердить документы.</div>
+    <button class="btn btn-primary full">Отправить анкету</button>
+  </form>
+</section>
+{% endblock %}

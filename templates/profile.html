@@ -1,0 +1,49 @@
+
+{% extends "base.html" %}
+{% block title %}Профиль — HomeHero{% endblock %}
+{% block content %}
+<section class="auth-layout wide">
+  <form class="card form-card wide-card" method="post" enctype="multipart/form-data">
+    <div class="form-title">
+      <span class="avatar large">
+        {% if avatar_src(g.user) %}<img src="{{ avatar_src(g.user) }}" alt="avatar">{% else %}{{ g.user.avatar }}{% endif %}
+      </span>
+      <div>
+        <h1>Профиль</h1>
+        <p>Данные аккаунта, аватарка, верификация и настройки мастера.</p>
+      </div>
+    </div>
+
+    <div class="profile-status-row">
+      <span class="verification-badge {{ g.user.verification_status }}">{{ verification_status_labels[g.user.verification_status] }}</span>
+      {% if g.user.verification_status == 'verified' %}<span class="verified-mini">Аккаунт подтверждён</span>{% endif %}
+      {% if g.user.verification_status != 'verified' %}<a class="btn btn-light sm" href="{{ url_for('verification') }}">Верификация</a>{% endif %}
+      <a class="btn btn-light sm" href="{{ url_for('wallet') }}">Баланс: {{ g.user.balance }} ₽</a>
+    </div>
+
+    <div class="two">
+      <label>Имя<input name="name" value="{{ g.user.name }}" required></label>
+      <label>Город<input name="city" value="{{ g.user.city }}"></label>
+    </div>
+    <label>Телефон<input name="phone" value="{{ g.user.phone }}"></label>
+    <label>Аватарка<input type="file" name="avatar_file" accept="image/png,image/jpeg,image/webp"></label>
+    <label>О себе<textarea name="bio">{{ g.user.bio }}</textarea></label>
+
+    {% if g.user.role == 'master' and master_profile %}
+      <hr>
+      <h2>Профиль мастера</h2>
+      <div class="two">
+        <label>Опыт, лет<input type="number" name="experience_years" min="0" value="{{ master_profile.experience_years }}"></label>
+        <label>Ставка, ₽/ч<input type="number" name="hourly_rate" value="{{ master_profile.hourly_rate }}"></label>
+      </div>
+      <div class="checks">
+        {% for cat in categories %}
+          <label><input type="checkbox" name="categories" value="{{ cat.name }}" {% if cat.name in master_profile.categories %}checked{% endif %}> {{ cat.name }}</label>
+        {% endfor %}
+      </div>
+      <div class="notice">Статус документов: {{ master_profile.documents_status }}</div>
+    {% endif %}
+    <button class="btn btn-primary full">Сохранить</button>
+  </form>
+</section>
+{% endblock %}

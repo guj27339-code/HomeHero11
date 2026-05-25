@@ -1,0 +1,55 @@
+
+{% extends "base.html" %}
+{% block title %}Контакты — HomeHero{% endblock %}
+{% block content %}
+<section class="page-head compact">
+  <div>
+    <h1>Контакты</h1>
+    <p>Связь с HomeHero по вопросам заказов, партнёрств, безопасности и документов.</p>
+  </div>
+  <a class="btn btn-primary" href="{{ url_for('support') if g.user else url_for('register') }}">Написать в поддержку</a>
+</section>
+
+<section class="grid cards-3 section">
+  <div class="contact-card">
+    <span>💬</span>
+    <h3>Поддержка клиентов</h3>
+    <p>Споры по заказам, возвраты, перенос времени, жалобы.</p>
+    <a href="mailto:support@homehero.ru">support@homehero.ru</a>
+  </div>
+  <div class="contact-card">
+    <span>🤝</span>
+    <h3>Партнёрства</h3>
+    <p>ЖК, управляющие компании, B2B-пакеты и корпоративные клиенты.</p>
+    <a href="mailto:partners@homehero.ru">partners@homehero.ru</a>
+  </div>
+  <div class="contact-card">
+    <span>🔐</span>
+    <h3>Безопасность</h3>
+    <p>Проверка мастеров, документы, подозрительные аккаунты.</p>
+    <a href="mailto:security@homehero.ru">security@homehero.ru</a>
+  </div>
+</section>
+
+<section class="section split">
+  <div class="panel">
+    <h2>Реквизиты учебного проекта</h2>
+    <div class="info-grid">
+      <div><span>Название</span><strong>HomeHero</strong></div>
+      <div><span>Город запуска</span><strong>Москва</strong></div>
+      <div><span>Время ответа</span><strong>до 24 часов</strong></div>
+      <div><span>Рабочие каналы</span><strong>Email и форма поддержки</strong></div>
+    </div>
+    <p class="muted">Для реального запуска нужно заменить эти контакты на официальные данные юридического лица.</p>
+  </div>
+  <div class="panel dark">
+    <h2>Экстренная ситуация</h2>
+    <p>Если есть угроза жизни или здоровью, сначала звоните в экстренные службы. HomeHero сохраняет историю заказа и помогает передать данные по обращению.</p>
+    <ul class="check-list">
+      <li>Фиксация мастера, времени и адреса заказа</li>
+      <li>Обращение в поддержку</li>
+      <li>Блокировка исполнителя при подтверждённой жалобе</li>
+    </ul>
+  </div>
+</section>
+{% endblock %}

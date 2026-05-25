@@ -1,0 +1,160 @@
+
+{% extends "base.html" %}
+{% block title %}HomeHero — проверенные мастера{% endblock %}
+{% block content %}
+<section class="hero reveal">
+  <div class="hero-content">
+    <div class="eyebrow">Проверенные исполнители • прозрачные цены • безопасная сделка</div>
+    <h1>Найдите мастера для дома в пару кликов</h1>
+    <p>HomeHero помогает заказать ремонт, уборку, сборку мебели, электрику и другие бытовые услуги без звонков, стресса и риска.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary btn-lg" href="{{ url_for('new_order') if g.user else url_for('register') }}">Создать заявку</a>
+      <a class="btn btn-light btn-lg" href="{{ url_for('masters') }}">Выбрать мастера</a>
+    </div>
+    <div class="trust-row">
+      <span>✓ Верификация мастеров</span>
+      <span>✓ Отзывы и рейтинг</span>
+      <span>✓ Поддержка 24/7</span>
+    </div>
+  </div>
+
+  <div class="hero-card">
+    <div class="phone">
+      <div class="phone-top"></div>
+      <div class="live-dot"></div>
+      <div class="quick-card">
+        <span class="quick-icon">🛠️</span>
+        <div>
+          <strong>Срочный ремонт</strong>
+          <small>Мастер найден за 12 минут</small>
+        </div>
+        <b>4.9★</b>
+      </div>
+      <div class="quick-card">
+        <span class="quick-icon">🧹</span>
+        <div>
+          <strong>Уборка квартиры</strong>
+          <small>Цена заранее: от 2 200 ₽</small>
+        </div>
+        <b>4.8★</b>
+      </div>
+      <div class="quick-card active">
+        <span class="quick-icon">🔐</span>
+        <div>
+          <strong>Безопасная сделка</strong>
+          <small>Оплата после результата</small>
+        </div>
+        <b>OK</b>
+      </div>
+      <div class="phone-total">
+        <span>Средняя оценка</span>
+        <strong>4.9★</strong>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="stats reveal">
+  <div><strong data-count="{{ stats.masters }}">{{ stats.masters }}</strong><span>мастера</span></div>
+  <div><strong data-count="{{ stats.orders }}">{{ stats.orders }}</strong><span>заказов в базе</span></div>
+  <div><strong data-count="{{ stats.reviews }}">{{ stats.reviews }}</strong><span>отзывов</span></div>
+  <div><strong data-count="15" data-suffix="%">15%</strong><span>комиссия сервиса</span></div>
+</section>
+
+<section class="section process-section reveal">
+  <div class="section-head">
+    <div>
+      <h2>Как работает HomeHero</h2>
+      <p>Путь клиента сделан максимально коротким: от проблемы до готового результата.</p>
+    </div>
+  </div>
+  <div class="process-grid">
+    <div class="process-step"><span>01</span><h3>Опишите задачу</h3><p>Выберите услугу, адрес, время и бюджет. Всё фиксируется в системе.</p></div>
+    <div class="process-step"><span>02</span><h3>Выберите мастера</h3><p>Смотрите рейтинг, отзывы, категории, опыт и статус проверки документов.</p></div>
+    <div class="process-step"><span>03</span><h3>Контролируйте заказ</h3><p>Статусы, поддержка, безопасная сделка и история обращения остаются в кабинете.</p></div>
+    <div class="process-step"><span>04</span><h3>Оцените результат</h3><p>После завершения оставьте отзыв, который влияет на рейтинг исполнителя.</p></div>
+  </div>
+</section>
+
+<section class="section pro-banner reveal">
+  <div>
+    <span class="eyebrow">Marketplace уровня production</span>
+    <h2>Не доска объявлений, а сервис с контролем качества</h2>
+    <p>HomeHero снижает риски через проверку исполнителей, историю заказов, чат поддержки, статусы, жалобы и безопасную сделку.</p>
+  </div>
+  <div class="quality-score">
+    <strong>96%</strong>
+    <span>целевой уровень успешных заказов</span>
+  </div>
+</section>
+
+<section class="section reveal">
+  <div class="section-head">
+    <div>
+      <h2>Популярные услуги</h2>
+      <p>Быстрый старт заявки по самым востребованным категориям.</p>
+    </div>
+    <a href="{{ url_for('catalog') }}">Все услуги →</a>
+  </div>
+  <div class="grid cards-3">
+    {% for cat in categories %}
+      <a class="service-card" href="{{ url_for('new_order', category_id=cat.id) if g.user else url_for('register') }}">
+        <span>{{ cat.icon }}</span>
+        <h3>{{ cat.name }}</h3>
+        <p>{{ cat.description }}</p>
+        <b>от {{ cat.base_price }} ₽</b>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section split reveal">
+  <div class="panel dark">
+    <h2>Почему это безопаснее объявлений?</h2>
+    <p>Исполнитель не анонимен: заказ, профиль, отзывы, статус документов и история работы фиксируются в системе.</p>
+    <ul class="check-list">
+      <li>Паспорт и телефон мастера проходят проверку</li>
+      <li>Оплата удерживается до завершения работы</li>
+      <li>Есть поддержка, жалобы и блокировка нарушителей</li>
+    </ul>
+  </div>
+  <div class="panel">
+    <h2>Лучшие мастера</h2>
+    {% for m in top_masters %}
+      <a class="master-line" href="{{ url_for('master_detail', master_id=m.id) }}">
+        <span class="avatar">{% if avatar_src(m) %}<img src="{{ avatar_src(m) }}" alt="avatar">{% else %}{{ m.avatar }}{% endif %}</span>
+        <div>
+          <strong>{{ m.name }}</strong>
+          <small>{{ m.categories }}</small>
+        </div>
+        <b>{{ m.rating }}★</b>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section reveal">
+  <div class="section-head">
+    <div>
+      <h2>Отзывы пользователей</h2>
+      <p>Проект ориентирован на доверие, скорость и понятный сервис.</p>
+    </div>
+  </div>
+  <div class="grid cards-3">
+    <div class="testimonial"><b>Светлана</b><span>Фрилансер</span><p>«Мне важно не тратить полдня на поиск мастера. Здесь всё понятно: цена, рейтинг и время».</p></div>
+    <div class="testimonial"><b>Алексей</b><span>Молодой профессионал</span><p>«Заказ в пару кликов — именно то, что нужно, когда нет времени разбираться в ремонте».</p></div>
+    <div class="testimonial"><b>Ольга</b><span>Семейный пользователь</span><p>«Для меня главное — безопасность, отзывы и возможность обратиться в поддержку».</p></div>
+  </div>
+</section>
+
+<section class="section final-cta reveal">
+  <div>
+    <h2>Готовы закрыть бытовую задачу без стресса?</h2>
+    <p>Создайте заявку или выберите проверенного мастера прямо сейчас.</p>
+  </div>
+  <div class="row-actions">
+    <a class="btn btn-primary btn-lg" href="{{ url_for('new_order') if g.user else url_for('register') }}">Начать</a>
+    <a class="btn btn-light btn-lg" href="{{ url_for('safety') }}">Как мы защищаем</a>
+  </div>
+</section>
+{% endblock %}

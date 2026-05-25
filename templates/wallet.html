@@ -1,0 +1,42 @@
+
+{% extends "base.html" %}
+{% block title %}Баланс — HomeHero{% endblock %}
+{% block content %}
+<section class="page-head compact">
+  <div>
+    <h1>Баланс</h1>
+    <p>Начисления мастера за завершённые заказы. Комиссия HomeHero — 15%.</p>
+  </div>
+  <span class="balance-pill">{{ g.user.balance }} ₽</span>
+</section>
+
+<section class="section split">
+  <div class="panel">
+    <h2>Как мастер зарабатывает?</h2>
+    <p>Когда заказ переводится в статус «Завершён», система начисляет мастеру 85% бюджета заказа, а 15% остаётся комиссией сервиса.</p>
+    <div class="info-grid">
+      <div><span>Баланс</span><strong>{{ g.user.balance }} ₽</strong></div>
+      <div><span>Комиссия</span><strong>15%</strong></div>
+    </div>
+    {% if g.user.role == 'master' %}
+    <form method="post" class="mini-form">
+      <label>Сумма вывода<input type="number" name="amount" min="1" max="{{ g.user.balance }}" value="{{ g.user.balance }}"></label>
+      <button class="btn btn-primary full">Запросить вывод</button>
+    </form>
+    {% endif %}
+  </div>
+
+  <div class="panel">
+    <h2>История операций</h2>
+    {% for t in transactions %}
+      <div class="ticket">
+        <strong>{{ t.amount }} ₽</strong>
+        <small>{{ t.type }} • {{ t.created_at }}</small>
+        <p>{{ t.description }}</p>
+      </div>
+    {% else %}
+      <p class="muted">Операций пока нет.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

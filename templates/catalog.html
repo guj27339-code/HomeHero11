@@ -1,0 +1,23 @@
+
+{% extends "base.html" %}
+{% block title %}Каталог услуг — HomeHero{% endblock %}
+{% block content %}
+<section class="page-head">
+  <h1>Каталог услуг</h1>
+  <p>Выберите категорию, создайте заявку и получите подходящего мастера.</p>
+</section>
+<div class="grid cards-3 section">
+  {% for cat in categories %}
+    <div class="service-card">
+      <span>{{ cat.icon }}</span>
+      <h3>{{ cat.name }}</h3>
+      <p>{{ cat.description }}</p>
+      <b>от {{ cat.base_price }} ₽</b>
+      <div class="row-actions">
+        <a class="btn btn-primary" href="{{ url_for('new_order', category_id=cat.id) if g.user else url_for('register') }}">Заказать</a>
+        <a class="btn btn-light" href="{{ url_for('masters', category=cat.name) }}">Мастера</a>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

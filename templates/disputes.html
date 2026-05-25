@@ -1,0 +1,21 @@
+
+{% extends "base.html" %}
+{% block title %}Споры — HomeHero{% endblock %}
+{% block content %}
+<section class="page-head compact">
+  <div><h1>Система споров</h1><p>Споры помогают решить конфликт: возврат, выплата мастеру или повторный выезд.</p></div>
+</section>
+<section class="section panel">
+  {% for d in disputes %}
+    <a class="ticket-line" href="{{ url_for('dispute_detail', dispute_id=d.id) }}">
+      <div>
+        <strong>#{{ d.id }} • {{ d.reason }}</strong>
+        <small>Заказ: {{ d.order_title }} • открыл: {{ d.opened_by_name }} • {{ d.created_at }}</small>
+      </div>
+      <span>{{ dispute_status_labels[d.status] }}</span>
+    </a>
+  {% else %}
+    <p class="muted">Споров пока нет.</p>
+  {% endfor %}
+</section>
+{% endblock %}

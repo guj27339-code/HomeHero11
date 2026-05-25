@@ -1,0 +1,94 @@
+
+{% extends "base.html" %}
+{% block title %}Верификация — HomeHero{% endblock %}
+{% block content %}
+<section class="page-head compact">
+  <div>
+    <h1>Верификация личности</h1>
+    <p>Загрузите паспортные данные, фото паспорта и селфи с паспортом. Без проверки нельзя заказывать или принимать услуги.</p>
+  </div>
+  <span class="verification-badge {{ g.user.verification_status }}">{{ verification_status_labels[g.user.verification_status] }}</span>
+</section>
+
+<section class="section verification-layout">
+  <form class="card form-card wide-card verification-form" method="post" enctype="multipart/form-data">
+    <div class="form-title">
+      <span class="brand-mark">ID</span>
+      <div><h1>Документы для проверки</h1><p>Данные видит только администратор. В учебной версии они хранятся локально.</p></div>
+    </div>
+
+    {% if g.user.verification_status == 'verified' %}
+      <div class="notice success-note">Ваш аккаунт уже подтверждён. Можно создавать и принимать заказы.</div>
+    {% elif g.user.verification_status == 'pending' %}
+      <div class="notice">Данные находятся на проверке у администратора. Можно обновить данные и отправить заново.</div>
+    {% elif g.user.verification_status == 'rejected' %}
+      <div class="notice danger-note">Проверка отклонена: {{ g.user.verification_comment or 'уточните данные' }}</div>
+    {% endif %}
+
+    <div class="two">
+      <label>Серия паспорта<input name="passport_series" maxlength="4" required value="{{ g.user.passport_series }}" placeholder="1234"></label>
+      <label>Номер паспорта<input name="passport_number" maxlength="6" required value="{{ g.user.passport_number }}" placeholder="567890"></label>
+    </div>
+
+    <div class="two">
+      <label>Дата рождения<input type="date" name="birth_date" required value="{{ g.user.birth_date }}"></label>
+      <label>Дата выдачи<input type="date" name="passport_issue_date" required value="{{ g.user.passport_issue_date }}"></label>
+    </div>
+
+    <label>Кем выдан паспорт<textarea name="passport_issued_by" required placeholder="Например: ОМВД России по...">{{ g.user.passport_issued_by }}</textarea></label>
+
+    <div class="upload-grid">
+      <label class="upload-card">
+        <span>📄</span>
+        <strong>Фото паспорта</strong>
+        <small>Разворот с фото должен быть читаемым, без бликов и обрезанных углов.</small>
+        <input type="file" name="passport_photo_file" accept="image/png,image/jpeg,image/webp" {% if not g.user.passport_photo_file %}required{% endif %}>
+        {% if g.user.passport_photo_file %}<em>Файл уже загружен. Можно заменить.</em>{% endif %}
+      </label>
+
+      <label class="upload-card">
+        <span>🤳</span>
+        <strong>Селфи с паспортом</strong>
+        <small>Лицо и паспорт должны быть в кадре. Не закрывайте данные пальцами.</small>
+        <input type="file" name="selfie_photo_file" accept="image/png,image/jpeg,image/webp" {% if not g.user.selfie_photo_file %}required{% endif %}>
+        {% if g.user.selfie_photo_file %}<em>Файл уже загружен. Можно заменить.</em>{% endif %}
+      </label>
+    </div>
+
+    <label class="legal-check">
+      <input type="checkbox" name="consent_pd" required>
+      <span>Даю отдельное согласие на обработку паспортных данных и фотографий для проверки личности, безопасности заказов и предотвращения мошенничества.</span>
+    </label>
+
+    <button class="btn btn-primary full">Отправить на проверку</button>
+  </form>
+
+  <aside class="verification-guide">
+    <div class="panel dark">
+      <h2>Как сделать фото правильно?</h2>
+      <div class="doc-example good">
+        <div class="doc-face"></div><div class="doc-lines"></div><span>Фото паспорта</span>
+      </div>
+      <div class="doc-example selfie">
+        <div class="selfie-head"></div><div class="selfie-doc"></div><span>Селфи с паспортом</span>
+      </div>
+      <ul class="check-list">
+        <li>Снимок чёткий, без бликов и размытия.</li>
+        <li>Все углы документа видны.</li>
+        <li>На селфи видно лицо и паспорт.</li>
+        <li>Фото не должно быть скриншотом или копией.</li>
+      </ul>
+    </div>
+
+    <div class="panel">
+      <h2>Что проверяет администратор?</h2>
+      <div class="mini-checks">
+        <span>✓ ФИО и документ заполнены</span>
+        <span>✓ Фото читаемое</span>
+        <span>✓ Селфи совпадает с документом</span>
+        <span>✓ Нет признаков подделки</span>
+      </div>
+    </div>
+  </aside>
+</section>
+{% endblock %}

@@ -1,0 +1,29 @@
+
+{% extends "base.html" %}
+{% block title %}Платежи — HomeHero{% endblock %}
+{% block content %}
+<section class="page-head compact">
+  <div><h1>История платежей</h1><p>Демо-эквайринг, заморозка средств, возвраты и статусы оплат.</p></div>
+</section>
+<section class="section panel">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Заказ</th><th>Пользователь</th><th>Сумма</th><th>Статус</th><th>Провайдер</th><th>Дата</th></tr></thead>
+      <tbody>
+      {% for p in payments %}
+        <tr>
+          <td><a href="{{ url_for('order_detail', order_id=p.order_id) }}">#{{ p.order_id }} — {{ p.order_title }}</a></td>
+          <td>{{ p.user_name }}</td>
+          <td>{{ p.amount }} ₽</td>
+          <td>{{ payment_event_labels[p.status] if p.status in payment_event_labels else p.status }}</td>
+          <td>{{ p.provider }}</td>
+          <td>{{ p.created_at }}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="6">Платежей пока нет.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,12 @@
+
+{% extends "base.html" %}
+{% block title %}{{ code }} — {{ title }}{% endblock %}
+{% block content %}
+<section class="auth-layout">
+  <div class="card form-card center">
+    <h1>{{ code }}</h1>
+    <p>{{ message }}</p>
+    <a class="btn btn-primary" href="{{ url_for('index') }}">На главную</a>
+  </div>
+</section>
+{% endblock %}

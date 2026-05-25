@@ -1,0 +1,52 @@
+
+{% extends "base.html" %}
+{% block title %}Аналитика — HomeHero{% endblock %}
+{% block content %}
+<section class="page-head compact">
+  <div>
+    <h1>Админ-аналитика</h1>
+    <p>Показатели marketplace: заказы, выручка, комиссия, поддержка, верификация и жалобы.</p>
+  </div>
+  <a class="btn btn-light" href="{{ url_for('admin') }}">Админ-панель</a>
+</section>
+
+<section class="grid cards-3">
+  <div class="metric"><span>Заказы всего</span><strong>{{ total_orders }}</strong></div>
+  <div class="metric"><span>Завершено</span><strong>{{ completed_orders }}</strong></div>
+  <div class="metric"><span>Активные пользователи</span><strong>{{ active_users }}</strong></div>
+  <div class="metric"><span>Мастера</span><strong>{{ masters_count }}</strong></div>
+  <div class="metric"><span>Оборот</span><strong>{{ revenue }} ₽</strong></div>
+  <div class="metric"><span>Комиссия 15%</span><strong>{{ commission }} ₽</strong></div>
+</section>
+
+<section class="section split">
+  <div class="panel">
+    <h2>Операционные риски</h2>
+    <div class="analytics-bars">
+      <div><span>Открытые обращения</span><b style="width:{{ [tickets_open*10,100]|min }}%"></b><strong>{{ tickets_open }}</strong></div>
+      <div><span>Верификация</span><b style="width:{{ [pending_verifications*10,100]|min }}%"></b><strong>{{ pending_verifications }}</strong></div>
+      <div><span>Жалобы</span><b style="width:{{ [complaints_count*10,100]|min }}%"></b><strong>{{ complaints_count }}</strong></div>
+    </div>
+  </div>
+  <div class="panel">
+    <h2>Промокоды</h2>
+    {% for p in promo_stats %}
+      <div class="ticket-line"><div><strong>{{ p.code }}</strong><small>{{ p.description }}</small></div><span>{{ p.discount_percent }}%</span></div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section panel">
+  <h2>Топ мастеров</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Мастер</th><th>Рейтинг</th><th>Заказы</th><th>Надёжность</th></tr></thead>
+      <tbody>
+      {% for m in top_masters %}
+        <tr><td>{{ m.name }}</td><td>{{ m.rating }}★</td><td>{{ m.completed_orders }}</td><td>{{ m.reliability_score or 95 }}%</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

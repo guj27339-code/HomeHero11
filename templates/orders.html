@@ -1,0 +1,31 @@
+
+{% extends "base.html" %}
+{% block title %}Заказы — HomeHero{% endblock %}
+{% block content %}
+<section class="page-head compact">
+  <div><h1>Заказы</h1><p>Управление заявками, статусами и оплатой.</p></div>
+  <a class="btn btn-primary" href="{{ url_for('new_order') }}">Новая заявка</a>
+</section>
+<section class="section">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>ID</th><th>Услуга</th><th>Название</th><th>Статус</th><th>Бюджет</th><th>Дата</th><th></th></tr></thead>
+      <tbody>
+      {% for o in orders %}
+        <tr>
+          <td>#{{ o.id }}</td>
+          <td>{{ o.category_icon }} {{ o.category_name }}</td>
+          <td>{{ o.title }}</td>
+          <td><span class="status {{ o.status }}">{{ status_labels[o.status] }}</span></td>
+          <td>{{ o.budget }} ₽</td>
+          <td>{{ o.scheduled_at }}</td>
+          <td><a class="btn btn-light sm" href="{{ url_for('order_detail', order_id=o.id) }}">Открыть</a></td>
+        </tr>
+      {% else %}
+        <tr><td colspan="7">Заказов пока нет.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

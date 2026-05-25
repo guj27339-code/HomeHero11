@@ -1,0 +1,40 @@
+
+{% extends "base.html" %}
+{% block title %}Для мастеров — HomeHero{% endblock %}
+{% block content %}
+<section class="hero mini-hero">
+  <div class="hero-content">
+    <span class="eyebrow">Заработок для мастеров</span>
+    <h1>Получайте заказы без поиска клиентов</h1>
+    <p>HomeHero даёт мастеру профиль, календарь, заказы, безопасную сделку, портфолио, рейтинг и Pro-продвижение.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="{{ url_for('register') }}">Стать мастером</a>
+      <a class="btn btn-light" href="{{ url_for('masters') }}">Посмотреть мастеров</a>
+    </div>
+  </div>
+  <div class="panel dark">
+    <h2>Как это работает</h2>
+    <ul class="check-list">
+      <li>Регистрируетесь как мастер.</li>
+      <li>Проходите верификацию.</li>
+      <li>Заполняете календарь и портфолио.</li>
+      <li>Получаете заявки и выплаты на баланс.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="grid cards-3 section">
+  <div class="safety-card"><span>📅</span><h3>Календарь</h3><p>Отмечайте рабочие дни и свободные часы.</p></div>
+  <div class="safety-card"><span>⚡</span><h3>Срочные заказы</h3><p>Включайте режим «свободен сейчас» и получайте быстрые заявки.</p></div>
+  <div class="safety-card"><span>📈</span><h3>Pro-продвижение</h3><p>Подписка Pro повышает видимость и показывает расширенную аналитику.</p></div>
+</section>
+
+<section class="section panel">
+  <h2>Категории работ</h2>
+  <div class="tags">
+    {% for cat in categories %}
+      <span>{{ cat.icon }} {{ cat.name }}</span>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

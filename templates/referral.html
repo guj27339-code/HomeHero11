@@ -1,0 +1,23 @@
+
+{% extends "base.html" %}
+{% block title %}Реферальная программа — HomeHero{% endblock %}
+{% block content %}
+<section class="page-head compact">
+  <div><h1>Реферальная программа</h1><p>Приглашайте друзей и получайте скидку на следующий заказ.</p></div>
+  <span class="balance-pill">{{ code }}</span>
+</section>
+<section class="section split">
+  <div class="panel">
+    <h2>Как работает</h2>
+    <ul class="check-list">
+      <li>Отправьте другу ваш код.</li>
+      <li>Друг использует промокод при первом заказе.</li>
+      <li>Вы получаете бонус на следующий заказ.</li>
+    </ul>
+  </div>
+  <div class="panel dark">
+    <h2>Готовый текст</h2>
+    <p>Привет! Попробуй HomeHero для бытовых услуг. Мой код: <strong>{{ code }}</strong></p>
+  </div>
+</section>
+{% endblock %}

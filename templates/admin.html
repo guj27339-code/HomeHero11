@@ -1,0 +1,113 @@
+
+{% extends "base.html" %}
+{% block title %}Админ-панель — HomeHero{% endblock %}
+{% block content %}
+<section class="page-head">
+  <h1>Админ-панель</h1>
+  <p>Управление пользователями, верификацией, мастерами, обращениями и безопасностью.</p>
+</section>
+
+<section class="section">
+  <div class="panel">
+    <h2>Заявки на верификацию</h2>
+    {% if pending_verifications %}
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Пользователь</th><th>Роль</th><th>Паспорт</th><th>Дата рождения</th><th>Действие</th></tr></thead>
+          <tbody>
+          {% for u in pending_verifications %}
+            <tr>
+              <td>#{{ u.id }}</td>
+              <td>{{ u.name }}<br><small>{{ u.email }} • {{ u.phone }}</small></td>
+              <td>{{ u.role }}</td>
+              <td>
+                {{ u.passport_series }} {{ u.passport_number }}<br><small>{{ u.passport_issued_by }}</small>
+                <div class="doc-links">
+                  {% if u.passport_photo_file %}<a target="_blank" href="{{ url_for('static', filename='uploads/' ~ u.passport_photo_file) }}">Фото паспорта</a>{% endif %}
+                  {% if u.selfie_photo_file %}<a target="_blank" href="{{ url_for('static', filename='uploads/' ~ u.selfie_photo_file) }}">Селфи</a>{% endif %}
+                </div>
+              </td>
+              <td>{{ u.birth_date }}</td>
+              <td>
+                <form method="post" class="admin-actions">
+                  <input type="hidden" name="user_id" value="{{ u.id }}">
+                  <button class="btn btn-primary sm" name="action" value="verify">Подтвердить</button>
+                  <input name="comment" placeholder="Причина отказа">
+                  <button class="btn btn-danger sm" name="action" value="reject_verification">Отклонить</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="muted">Нет заявок на проверку.</p>
+    {% endif %}
+  </div>
+</section>
+
+<section class="section split">
+  <div class="panel">
+    <h2>Мастера</h2>
+    {% for m in masters %}
+      <div class="admin-line">
+        <div>
+          <strong>{{ m.name }}</strong>
+          <small>{{ m.documents_status }} • {{ verification_status_labels[m.verification_status] }} • {{ m.rating }}★</small>
+        </div>
+        <form method="post">
+          <input type="hidden" name="user_id" value="{{ m.id }}">
+          <button class="btn btn-light sm" name="action" value="verify">Подтвердить</button>
+          {% if m.is_active %}
+            <button class="btn btn-danger sm" name="action" value="block">Блок</button>
+          {% else %}
+            <button class="btn btn-primary sm" name="action" value="unblock">Активировать</button>
+          {% endif %}
+        </form>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="panel">
+    <h2>Обращения</h2>
+    {% for t in tickets %}
+      <div class="ticket">
+        <strong><a href="{{ url_for('ticket_detail', ticket_id=t.id) }}">#{{ t.id }} — {{ t.topic }}</a></strong>
+        <small>{{ t.user_name }} • {{ ticket_status_labels[t.status] }}</small>
+        <p>{{ t.message }}</p>
+        {% if t.status != 'closed' %}
+        <form method="post">
+          <input type="hidden" name="ticket_id" value="{{ t.id }}">
+          <button class="btn btn-light sm" name="action" value="close_ticket">Закрыть</button>
+        </form>
+        {% endif %}
+      </div>
+    {% else %}
+      <p class="muted">Обращений нет.</p>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section">
+  <h2>Все пользователи</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>ID</th><th>Имя</th><th>Email</th><th>Роль</th><th>Верификация</th><th>Баланс</th><th>Статус</th></tr></thead>
+      <tbody>
+      {% for u in users %}
+        <tr>
+          <td>{{ u.id }}</td>
+          <td>{{ u.name }}</td>
+          <td>{{ u.email }}</td>
+          <td>{{ u.role }}</td>
+          <td>{{ verification_status_labels[u.verification_status] }}</td>
+          <td>{{ u.balance }} ₽</td>
+          <td>{{ 'Активен' if u.is_active else 'Заблокирован' }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

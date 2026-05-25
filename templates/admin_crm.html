@@ -1,0 +1,59 @@
+
+{% extends "base.html" %}
+{% block title %}CRM — HomeHero{% endblock %}
+{% block content %}
+<section class="page-head compact">
+  <div><h1>CRM-панель администратора</h1><p>Контроль операционных проблем: заказы без мастера, рисковые мастера, споры и заявки на выплаты.</p></div>
+  <a class="btn btn-light" href="{{ url_for('admin_analytics') }}">Аналитика</a>
+</section>
+
+<section class="grid cards-3">
+  <div class="metric"><span>Без мастера</span><strong>{{ unassigned_orders|length }}</strong></div>
+  <div class="metric"><span>Активные споры</span><strong>{{ active_disputes|length }}</strong></div>
+  <div class="metric"><span>Рисковые мастера</span><strong>{{ risky_masters|length }}</strong></div>
+</section>
+
+<section class="section split">
+  <div class="panel">
+    <h2>Заказы без исполнителя</h2>
+    {% for o in unassigned_orders %}
+      <a class="ticket-line" href="{{ url_for('order_detail', order_id=o.id) }}">
+        <div><strong>#{{ o.id }} — {{ o.title }}</strong><small>{{ o.customer_name }} • {{ o.category_name }} • {{ o.budget }} ₽</small></div>
+        <span>{{ status_labels[o.status] }}</span>
+      </a>
+    {% else %}<p class="muted">Нет зависших заказов.</p>{% endfor %}
+  </div>
+
+  <div class="panel">
+    <h2>Активные споры</h2>
+    {% for d in active_disputes %}
+      <a class="ticket-line" href="{{ url_for('dispute_detail', dispute_id=d.id) }}">
+        <div><strong>#{{ d.id }} — {{ d.reason }}</strong><small>{{ d.order_title }} • {{ d.opened_by_name }}</small></div>
+        <span>{{ dispute_status_labels[d.status] }}</span>
+      </a>
+    {% else %}<p class="muted">Активных споров нет.</p>{% endfor %}
+  </div>
+</section>
+
+<section class="section split">
+  <div class="panel">
+    <h2>Рисковые мастера</h2>
+    {% for m in risky_masters %}
+      <a class="ticket-line" href="{{ url_for('master_detail', master_id=m.id) }}">
+        <div><strong>{{ m.name }}</strong><small>{{ m.email }} • рейтинг {{ m.rating }}★ • жалоб: {{ m.open_complaints }}</small></div>
+        <span>{{ m.reliability_score }}%</span>
+      </a>
+    {% else %}<p class="muted">Рисков не найдено.</p>{% endfor %}
+  </div>
+
+  <div class="panel">
+    <h2>Вывод денег / баланс</h2>
+    {% for t in payout_requests %}
+      <a class="ticket-line" href="{{ url_for('ticket_detail', ticket_id=t.id) }}">
+        <div><strong>#{{ t.id }} — {{ t.topic }}</strong><small>{{ t.user_name }} • {{ t.created_at }}</small></div>
+        <span>{{ ticket_status_labels[t.status] }}</span>
+      </a>
+    {% else %}<p class="muted">Заявок на выплаты нет.</p>{% endfor %}
+  </div>
+</section>
+{% endblock %}

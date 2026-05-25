@@ -1,0 +1,58 @@
+
+{% extends "base.html" %}
+{% block title %}Панель поддержки — HomeHero{% endblock %}
+{% block content %}
+<section class="page-head compact">
+  <div>
+    <h1>Панель поддержки</h1>
+    <p>Ответы на обращения, приоритеты, статусы и назначение ответственных.</p>
+  </div>
+  <div class="row-actions">
+    <a class="btn btn-light" href="{{ url_for('support_panel', status='active') }}">Активные</a>
+    <a class="btn btn-light" href="{{ url_for('support_panel', status='closed') }}">Закрытые</a>
+    <a class="btn btn-light" href="{{ url_for('support_panel', status='all') }}">Все</a>
+  </div>
+</section>
+
+<section class="grid cards-3">
+  <div class="metric"><span>Открыто</span><strong>{{ stats.open }}</strong></div>
+  <div class="metric"><span>В работе</span><strong>{{ stats.progress }}</strong></div>
+  <div class="metric"><span>Критичных</span><strong>{{ stats.critical }}</strong></div>
+</section>
+
+<section class="section">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Клиент</th><th>Тема</th><th>Приоритет</th><th>Статус</th><th>Ответственный</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for t in tickets %}
+        <tr>
+          <td>#{{ t.id }}</td>
+          <td>{{ t.user_name }}<br><small>{{ t.user_email }}</small></td>
+          <td>
+            <strong>{{ t.topic }}</strong>
+            {% if t.order_title %}<br><small>Заказ: {{ t.order_title }}</small>{% endif %}
+          </td>
+          <td><span class="priority {{ t.priority }}">{{ ticket_priority_labels[t.priority] }}</span></td>
+          <td><span class="ticket-status {{ t.status }}">{{ ticket_status_labels[t.status] }}</span></td>
+          <td>{{ t.assigned_name or 'Не назначен' }}</td>
+          <td class="table-actions">
+            <a class="btn btn-primary sm" href="{{ url_for('ticket_detail', ticket_id=t.id) }}">Открыть</a>
+            {% if not t.assigned_to and t.status != 'closed' %}
+            <form method="post">
+              <input type="hidden" name="ticket_id" value="{{ t.id }}">
+              <button class="btn btn-light sm" name="action" value="take">Взять</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7">Обращений нет.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

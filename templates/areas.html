@@ -1,0 +1,33 @@
+
+{% extends "base.html" %}
+{% block title %}Карта обслуживания — HomeHero{% endblock %}
+{% block content %}
+<section class="page-head">
+  <h1>Карта заказов и районов</h1>
+  <p>Демо-карта показывает районы обслуживания, среднее время приезда и доплату за выезд.</p>
+</section>
+
+<section class="section split">
+  <div class="panel map-panel">
+    <h2>Москва и область</h2>
+    <div class="demo-map">
+      {% for area in areas %}
+        <div class="map-zone zone-{{ loop.index }}">
+          <strong>{{ area.name }}</strong>
+          <span>~{{ area.avg_arrival_minutes }} мин</span>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="panel">
+    <h2>Районы обслуживания</h2>
+    {% for area in areas %}
+      <div class="ticket-line">
+        <div><strong>{{ area.name }}</strong><small>{{ area.city }} • средний приезд {{ area.avg_arrival_minutes }} мин</small></div>
+        <span>{{ area.base_trip_price }} ₽</span>
+      </div>
+    {% endfor %}
+    <a class="btn btn-primary full" href="{{ url_for('new_order') if g.user else url_for('register') }}">Создать заказ</a>
+  </div>
+</section>
+{% endblock %}

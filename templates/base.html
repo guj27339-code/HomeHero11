@@ -1,0 +1,124 @@
+
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}HomeHero{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="page-loader" id="page-loader"><div class="loader-logo">HH</div><span>HomeHero загружается</span></div>
+  <div class="scroll-progress" id="scroll-progress"></div>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+  <div class="page">
+    <header class="header">
+      <a href="{{ url_for('index') }}" class="brand">
+        <span class="brand-mark">HH</span>
+        <span>
+          <strong>HomeHero</strong>
+          <small>домашние услуги без стресса</small>
+        </span>
+      </a>
+      <nav class="nav" id="nav">
+        <a data-nav href="{{ url_for('catalog') }}">Услуги</a>
+        <a data-nav href="{{ url_for('masters') }}">Мастера</a>
+        <a data-nav href="{{ url_for('safety') }}">Безопасность</a>
+        <a href="{{ url_for('guarantee') }}">Гарантия</a>
+        <a href="{{ url_for('areas') }}">Карта</a>
+        <a href="{{ url_for('for_masters') }}">Для мастеров</a>
+        <a data-nav href="{{ url_for('contacts') }}">Контакты</a>
+        {% if g.user %}
+          <a data-nav href="{{ url_for('orders') }}">Заказы</a>
+          <a data-nav href="{{ url_for('dashboard') }}">Кабинет</a>
+          {% if g.user.verification_status != 'verified' %}<a href="{{ url_for('verification') }}">Проверка</a>{% endif %}
+          <a href="{{ url_for('wallet') }}">Баланс</a>
+          <a href="{{ url_for('payments') }}">Платежи</a>
+          <a href="{{ url_for('disputes') }}">Споры</a>
+          <a href="{{ url_for('notifications') }}">Уведомления</a>
+          {% if g.user.role == 'master' %}<a href="{{ url_for('master_tools') }}">Мастер Pro</a>{% endif %}
+          {% if g.user.role in ['admin', 'support'] %}<a href="{{ url_for('support_panel') }}">Поддержка</a>{% endif %}
+          {% if g.user.role == 'admin' %}<a href="{{ url_for('admin') }}">Админ</a><a href="{{ url_for('admin_analytics') }}">Аналитика</a><a href="{{ url_for('admin_crm') }}">CRM</a>{% endif %}
+          <a href="{{ url_for('logout') }}" class="btn btn-ghost">Выйти</a>
+        {% else %}
+          <a href="{{ url_for('login') }}">Вход</a>
+          <a href="{{ url_for('register') }}" class="btn btn-primary">Регистрация</a>
+        {% endif %}
+      </nav>
+      <button class="menu-btn" data-menu>☰</button>
+    </header>
+
+    <main>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flash-wrap">
+            {% for category, message in messages %}
+              <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+      <div>
+        <strong>HomeHero</strong>
+        <p>Маркетплейс проверенных мастеров для бытовых задач.</p>
+      </div>
+      <div class="footer-links">
+        <a href="{{ url_for('support') if g.user else url_for('login') }}">Поддержка</a>
+        <a href="{{ url_for('areas') }}">Карта</a>
+        <a href="{{ url_for('for_masters') }}">Для мастеров</a>
+        <a data-nav href="{{ url_for('contacts') }}">Контакты</a>
+        <a href="{{ url_for('legal') }}">Правила</a>
+        <a href="{{ url_for('privacy') }}">Персональные данные</a>
+        <a href="{{ url_for('become_master') if g.user else url_for('register') }}">Стать мастером</a>
+      </div>
+    </footer>
+  </div>
+  <button class="floating-help" type="button" data-help-open aria-label="Поддержка">
+    <span>💬</span><b>Помощь</b>
+  </button>
+
+  <div class="help-modal" id="help-modal" aria-hidden="true">
+    <div class="help-backdrop" data-help-close></div>
+    <div class="help-panel" role="dialog" aria-modal="true" aria-label="Помощь HomeHero">
+      <button class="help-close" type="button" data-help-close>×</button>
+      <div class="form-title">
+        <span class="brand-mark">?</span>
+        <div>
+          <h1>Центр помощи</h1>
+          <p>Частые вопросы и быстрый переход в поддержку.</p>
+        </div>
+      </div>
+      <div class="faq-list">
+        <details open>
+          <summary>Почему нужна верификация?</summary>
+          <p>Клиент вызывает мастера домой, а мастер получает доступ к заказам. Поэтому без проверки личности нельзя заказать услугу или принять заявку.</p>
+        </details>
+        <details>
+          <summary>Что делать, если мастер не пришёл?</summary>
+          <p>Откройте заказ и нажмите «Поддержка по заказу». Сотрудник поддержки увидит номер заказа и поможет перенести, отменить или вернуть оплату.</p>
+        </details>
+        <details>
+          <summary>Как работает безопасная сделка?</summary>
+          <p>Оплата находится в статусе hold до завершения заказа. После подтверждения результата мастер получает выплату, а сервис удерживает комиссию.</p>
+        </details>
+        <details>
+          <summary>Как мастер получает деньги?</summary>
+          <p>После завершения заказа на баланс мастера начисляется 85% бюджета заказа. Вывод средств оформляется через заявку в поддержку.</p>
+        </details>
+      </div>
+      <div class="row-actions">
+        <a class="btn btn-primary" href="{{ url_for('support') if g.user else url_for('register') }}">Написать в поддержку</a>
+        <a class="btn btn-light" href="{{ url_for('safety') }}">Правила безопасности</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

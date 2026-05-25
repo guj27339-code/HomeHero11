@@ -1,0 +1,107 @@
+
+{% extends "base.html" %}
+{% block title %}Обращение #{{ ticket.id }} — HomeHero{% endblock %}
+{% block content %}
+<section class="page-head compact">
+  <div>
+    <h1>Обращение #{{ ticket.id }}</h1>
+    <p>{{ ticket.topic }} • {{ ticket.user_name }}{% if ticket.order_title %} • заказ: {{ ticket.order_title }}{% endif %}</p>
+  </div>
+  <div class="ticket-badges">
+    <span class="priority {{ ticket.priority }}">{{ ticket_priority_labels[ticket.priority] }}</span>
+    <span class="ticket-status {{ ticket.status }}">{{ ticket_status_labels[ticket.status] }}</span>
+  </div>
+</section>
+
+<section class="section support-chat-layout">
+  <div class="panel chat-panel">
+    <h2>Чат обращения</h2>
+    <div class="chat-box">
+      {% for m in messages %}
+        <div class="chat-message {% if m.sender_id == g.user.id %}mine{% endif %} {% if m.is_internal %}internal{% endif %}">
+          <div class="chat-meta">
+            <strong>{{ m.sender_name }}</strong>
+            <small>{{ m.sender_role }} • {{ m.created_at }}</small>
+            {% if m.is_internal %}<span class="badge">Внутренняя заметка</span>{% endif %}
+          </div>
+          <p>{{ m.message }}</p>
+        </div>
+      {% endfor %}
+    </div>
+
+
+    {% if g.user.role in ['admin','support'] and support_templates %}
+      <div class="support-templates">
+        <h3>Шаблоны ответов</h3>
+        {% for tpl in support_templates %}
+          <details>
+            <summary>{{ tpl.title }}</summary>
+            <p>{{ tpl.body }}</p>
+          </details>
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% if ticket.status != 'closed' %}
+    <form method="post" class="reply-form">
+      <input type="hidden" name="action" value="reply">
+      <label>Ответить<textarea name="message" required placeholder="Напишите ответ..."></textarea></label>
+      <button class="btn btn-primary">Отправить</button>
+    </form>
+    {% else %}
+      <div class="notice">Обращение закрыто. При необходимости создайте новое обращение.</div>
+    {% endif %}
+  </div>
+
+  <aside class="panel">
+    <h2>Данные обращения</h2>
+    <div class="info-grid one-col">
+      <div><span>Клиент</span><strong>{{ ticket.user_name }}</strong></div>
+      <div><span>Email</span><strong>{{ ticket.user_email }}</strong></div>
+      <div><span>Телефон</span><strong>{{ ticket.user_phone or 'Не указан' }}</strong></div>
+      <div><span>Ответственный</span><strong>{{ ticket.assigned_name or 'Не назначен' }}</strong></div>
+      <div><span>Создано</span><strong>{{ ticket.created_at }}</strong></div>
+    </div>
+
+    {% if g.user.role in ['admin','support'] %}
+    <form method="post" class="mini-form">
+      <input type="hidden" name="action" value="update">
+      <label>Статус
+        <select name="status">
+          {% for key, label in ticket_status_labels.items() %}
+            <option value="{{ key }}" {% if ticket.status == key %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Приоритет
+        <select name="priority">
+          {% for key, label in ticket_priority_labels.items() %}
+            <option value="{{ key }}" {% if ticket.priority == key %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Ответственный
+        <select name="assigned_to">
+          {% for s in support_users %}
+            <option value="{{ s.id }}" {% if ticket.assigned_to == s.id %}selected{% endif %}>{{ s.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <button class="btn btn-light full">Сохранить параметры</button>
+    </form>
+
+    <form method="post" class="mini-form">
+      <input type="hidden" name="action" value="internal">
+      <label>Внутренняя заметка<textarea name="message" placeholder="Эту заметку видит только поддержка"></textarea></label>
+      <button class="btn btn-light full">Добавить заметку</button>
+    </form>
+    {% endif %}
+
+    {% if ticket.status != 'closed' %}
+    <form method="post">
+      <input type="hidden" name="action" value="close">
+      <button class="btn btn-danger full">Закрыть обращение</button>
+    </form>
+    {% endif %}
+  </aside>
+</section>
+{% endblock %}

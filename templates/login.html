@@ -1,0 +1,18 @@
+
+{% extends "base.html" %}
+{% block title %}Вход — HomeHero{% endblock %}
+{% block content %}
+<section class="auth-layout">
+  <form class="card form-card" method="post">
+    <div class="form-title">
+      <span class="brand-mark">HH</span>
+      <div><h1>Вход</h1><p>Вернитесь к заказам и избранным мастерам.</p></div>
+    </div>
+    <label>Email<input type="email" name="email" required placeholder="olga@example.ru"></label>
+    <label>Пароль<div class="password-field"><input type="password" name="password" required placeholder="demo123"><button type="button" class="show-password" data-show-password>Показать</button></div></label>
+    <button class="btn btn-primary full">Войти</button>
+    <p class="muted center">Демо: admin@homehero.ru / admin123, olga@example.ru / demo123</p>
+    <p class="center">Нет аккаунта? <a href="{{ url_for('register') }}">Зарегистрироваться</a></p>
+  </form>
+</section>
+{% endblock %}

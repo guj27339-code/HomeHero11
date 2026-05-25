@@ -1,0 +1,90 @@
+
+{% extends "base.html" %}
+{% block title %}Мастер Pro — HomeHero{% endblock %}
+{% block content %}
+<section class="page-head compact">
+  <div>
+    <h1>Мастер Pro</h1>
+    <p>Календарь, срочный выезд, статус, портфолио и финансовая аналитика мастера.</p>
+  </div>
+  <span class="verification-badge verified">Надёжность {{ settings.reliability_score }}%</span>
+</section>
+
+<section class="grid cards-3">
+  <div class="metric"><span>Статус</span><strong>{{ settings.work_status }}</strong></div>
+  <div class="metric"><span>Срочный выезд</span><strong>{{ 'Да' if settings.urgent_enabled else 'Нет' }}</strong></div>
+  <div class="metric"><span>Pro до</span><strong>{{ settings.pro_until or 'Не активен' }}</strong></div>
+</section>
+
+<section class="section split">
+  <form class="panel" method="post">
+    <h2>Статус мастера</h2>
+    <input type="hidden" name="action" value="settings">
+    <label>Сейчас вы
+      <select name="work_status">
+        <option value="online" {% if settings.work_status == 'online' %}selected{% endif %}>Свободен сейчас</option>
+        <option value="busy" {% if settings.work_status == 'busy' %}selected{% endif %}>Занят</option>
+        <option value="offline" {% if settings.work_status == 'offline' %}selected{% endif %}>Не принимаю заказы</option>
+      </select>
+    </label>
+    <label class="legal-check"><input type="checkbox" name="urgent_enabled" {% if settings.urgent_enabled %}checked{% endif %}> <span>Готов к срочному выезду сегодня</span></label>
+    <button class="btn btn-primary full">Сохранить статус</button>
+  </form>
+
+  <form class="panel" method="post">
+    <h2>Подписка Pro</h2>
+    <p class="muted">Приоритет в выдаче, бейдж Pro, расширенная аналитика и +2 к надёжности.</p>
+    <input type="hidden" name="action" value="pro">
+    <button class="btn btn-primary full">Активировать Pro на 30 дней</button>
+  </form>
+</section>
+
+<section class="section split">
+  <form class="panel" method="post">
+    <h2>Календарь занятости</h2>
+    <input type="hidden" name="action" value="availability">
+    {% set weekdays = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'] %}
+    {% for day in weekdays %}
+      {% set row = availability|selectattr('weekday','equalto',day)|list|first %}
+      <div class="calendar-row">
+        <strong>{{ day }}</strong>
+        <input type="time" name="{{ day }}_start" value="{{ row.start_time if row else '' }}">
+        <input type="time" name="{{ day }}_end" value="{{ row.end_time if row else '' }}">
+      </div>
+    {% endfor %}
+    <button class="btn btn-primary full">Сохранить календарь</button>
+  </form>
+
+  <form class="panel" method="post" enctype="multipart/form-data">
+    <h2>Портфолио</h2>
+    <input type="hidden" name="action" value="portfolio">
+    <label>Название работы<input name="title" placeholder="Например: ремонт ванной"></label>
+    <label>Фото работы<input type="file" name="portfolio_photo" accept="image/png,image/jpeg,image/webp" required></label>
+    <button class="btn btn-primary full">Добавить работу</button>
+    <div class="photo-grid">
+      {% for p in portfolio %}
+        <a class="photo-tile" target="_blank" href="{{ url_for('static', filename='uploads/' ~ p.filename) }}">
+          <img src="{{ url_for('static', filename='uploads/' ~ p.filename) }}" alt="portfolio">
+          <span>{{ p.title }}</span>
+        </a>
+      {% endfor %}
+    </div>
+  </form>
+</section>
+
+<section class="section panel">
+  <h2>Финансовая аналитика</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Заказ</th><th>Статус</th><th>Бюджет</th><th>Дата</th></tr></thead>
+      <tbody>
+      {% for o in orders %}
+        <tr><td>#{{ o.id }} — {{ o.title }}</td><td>{{ status_labels[o.status] }}</td><td>{{ o.budget }} ₽</td><td>{{ o.created_at }}</td></tr>
+      {% else %}
+        <tr><td colspan="4">Заказов пока нет.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

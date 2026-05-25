@@ -1,0 +1,189 @@
+
+{% extends "base.html" %}
+{% block title %}Заказ #{{ order.id }} — HomeHero{% endblock %}
+{% block content %}
+<section class="page-head compact">
+  <div>
+    <h1>Заказ #{{ order.id }}</h1>
+    <p>{{ order.category_icon }} {{ order.category_name }} • {{ order.scheduled_at }}{% if order.urgent %} • Срочный{% endif %}</p>
+  </div>
+  <div class="ticket-badges">
+    <span class="status {{ order.status }}">{{ status_labels[order.status] }}</span>
+    <span class="priority normal">{{ payment_labels[order.payment_status] }}</span>
+  </div>
+</section>
+
+<section class="section split">
+  <div class="panel">
+    <h2>{{ order.title }}</h2>
+    <p>{{ order.description }}</p>
+    <div class="info-grid">
+      <div><span>Адрес</span><strong>{{ order.address }}</strong></div>
+      <div><span>Стоимость</span><strong>{{ order.budget }} ₽</strong></div>
+      <div><span>Клиент</span><strong>{{ order.customer_name }}</strong></div>
+      <div><span>Мастер</span><strong>{{ order.master_name or 'Не назначен' }}</strong></div>
+      <div><span>Оплата</span><strong>{{ payment_labels[order.payment_status] }}</strong></div>
+      <div><span>Промокод</span><strong>{{ order.promo_code or '—' }}</strong></div>
+    </div>
+
+    {% if intake_answers %}
+      <div class="intake-card">
+        <h3>Умная анкета заказа</h3>
+        {% for a in intake_answers %}
+          <div><strong>{{ a.question }}</strong><span>{{ a.answer }}</span></div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if warranty %}
+      <div class="warranty-card">
+        <strong>Электронная гарантия активна</strong>
+        <p>Действует до {{ warranty.expires_at }}. {{ warranty.terms }}</p>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="panel">
+    <h2>Действия</h2>
+
+    {% if g.user.id == order.customer_id and order.payment_status in ['created','failed'] %}
+      <a class="btn btn-primary full" href="{{ url_for('payment_page', order_id=order.id) }}">Оплатить демо</a>
+    {% endif %}
+
+    {% if g.user.role == 'master' and (order.master_id is none or order.master_id == g.user.id) and order.status != 'completed' %}
+      <form method="post"><input type="hidden" name="action" value="accept"><button class="btn btn-primary full">Принять заказ</button></form>
+    {% endif %}
+
+    {% if g.user.role in ['master','admin'] and (order.master_id == g.user.id or g.user.role == 'admin') %}
+      <form method="post" class="mini-form">
+        <input type="hidden" name="action" value="status">
+        <select name="status">
+          {% for key, label in status_labels.items() %}
+            <option value="{{ key }}" {% if order.status == key %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+        <button class="btn btn-light full">Обновить статус</button>
+      </form>
+    {% endif %}
+
+    {% if g.user.id == order.customer_id and order.status not in ['completed','cancelled'] %}
+      <form method="post"><input type="hidden" name="action" value="cancel"><button class="btn btn-danger full">Отменить заказ</button></form>
+    {% endif %}
+
+    {% if g.user.id == order.customer_id and order.status == 'completed' and not review %}
+      <form method="post" class="mini-form">
+        <input type="hidden" name="action" value="review">
+        <label>Оценка<select name="rating"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select></label>
+        <label>Отзыв<textarea name="text" required></textarea></label>
+        <button class="btn btn-primary full">Оставить отзыв</button>
+      </form>
+    {% endif %}
+
+    <form method="post"><input type="hidden" name="action" value="repeat"><button class="btn btn-light full">Повторить заказ</button></form>
+    <form method="post"><input type="hidden" name="action" value="emergency"><button class="btn btn-danger full">Тревожная кнопка</button></form>
+    <a class="btn btn-primary full" href="{{ url_for('support') }}?order_id={{ order.id }}">Поддержка по заказу</a>
+  </div>
+</section>
+
+<section class="section split">
+  <div class="panel">
+    <h2>Платежи</h2>
+    {% for p in payments %}
+      <div class="ticket-line">
+        <div>
+          <strong>{{ p.provider }} • {{ p.amount }} ₽</strong>
+          <small>{{ p.created_at }} • {{ p.card_mask or 'demo card' }}</small>
+        </div>
+        <span>{{ payment_event_labels[p.status] if p.status in payment_event_labels else p.status }}</span>
+      </div>
+    {% else %}
+      <p class="muted">Оплата ещё не создана.</p>
+    {% endfor %}
+    <a class="btn btn-light full" href="{{ url_for('payment_page', order_id=order.id) }}">Открыть демо-оплату</a>
+  </div>
+
+  <div class="panel">
+    <h2>Споры</h2>
+    {% for d in disputes %}
+      <a class="ticket-line" href="{{ url_for('dispute_detail', dispute_id=d.id) }}">
+        <div><strong>{{ d.reason }}</strong><small>{{ d.created_at }}</small></div>
+        <span>{{ dispute_status_labels[d.status] }}</span>
+      </a>
+    {% else %}
+      <p class="muted">Споров по заказу нет.</p>
+    {% endfor %}
+    <form method="post" class="mini-form">
+      <input type="hidden" name="action" value="open_dispute">
+      <label>Причина спора
+        <select name="reason" required>
+          <option value="">Выберите</option>
+          <option>Работа выполнена плохо</option>
+          <option>Мастер не пришёл</option>
+          <option>Цена изменилась</option>
+          <option>Клиент не подтверждает результат</option>
+          <option>Нужен возврат</option>
+        </select>
+      </label>
+      <label>Позиция стороны<textarea name="customer_position" required placeholder="Опишите, что произошло"></textarea></label>
+      <button class="btn btn-danger full">Открыть спор</button>
+    </form>
+  </div>
+</section>
+
+<section class="section split">
+  <div class="panel">
+    <h2>Чат заказа</h2>
+    <div class="chat-box order-chat">
+      {% for m in messages %}
+        <div class="chat-message {% if m.sender_id == g.user.id %}mine{% endif %}">
+          <div class="chat-meta"><strong>{{ m.sender_name }}</strong><small>{{ m.created_at }}</small></div>
+          <p>{{ m.message }}</p>
+        </div>
+      {% else %}
+        <p class="muted">Сообщений пока нет.</p>
+      {% endfor %}
+    </div>
+    <form method="post" class="reply-form">
+      <input type="hidden" name="action" value="order_message">
+      <label>Сообщение<textarea name="message" required placeholder="Уточните детали заказа..."></textarea></label>
+      <button class="btn btn-primary">Отправить</button>
+    </form>
+  </div>
+
+  <div class="panel">
+    <h2>Фото проблемы / до / после</h2>
+    <div class="photo-grid">
+      {% for p in photos %}
+        <a target="_blank" href="{{ url_for('static', filename='uploads/' ~ p.filename) }}" class="photo-tile">
+          <img src="{{ url_for('static', filename='uploads/' ~ p.filename) }}" alt="photo">
+          <span>{% if p.photo_type == 'problem' %}Проблема{% elif p.photo_type == 'before' %}До{% else %}После{% endif %}</span>
+        </a>
+      {% else %}
+        <p class="muted">Фото ещё не загружены.</p>
+      {% endfor %}
+    </div>
+    <form method="post" enctype="multipart/form-data" class="mini-form">
+      <input type="file" name="order_photo" accept="image/png,image/jpeg,image/webp" required>
+      <button class="btn btn-light" name="action" value="before_photo">Загрузить фото ДО</button>
+      <button class="btn btn-primary" name="action" value="after_photo">Загрузить фото ПОСЛЕ</button>
+    </form>
+  </div>
+</section>
+
+<section class="section panel">
+  <h2>Жалоба или обращение</h2>
+  <form method="post" class="complaint-form">
+    <input type="hidden" name="action" value="complaint">
+    <select name="reason" required>
+      <option value="">Выберите причину</option>
+      <option>Мастер не пришёл</option>
+      <option>Плохое качество работы</option>
+      <option>Цена изменилась</option>
+      <option>Грубое поведение</option>
+      <option>Проблема с клиентом</option>
+    </select>
+    <textarea name="details" required placeholder="Опишите ситуацию"></textarea>
+    <button class="btn btn-danger">Отправить жалобу</button>
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,80 @@
+
+{% extends "base.html" %}
+{% block title %}{{ master.name }} — HomeHero{% endblock %}
+{% block content %}
+<section class="profile-hero">
+  <span class="avatar xlarge">{% if avatar_src(master) %}<img src="{{ avatar_src(master) }}" alt="avatar">{% else %}{{ master.avatar }}{% endif %}</span>
+  <div>
+    <h1>{{ master.name }}</h1>
+    <p>{{ master.bio }}</p>
+    <div class="tags">
+      {% for tag in master.categories.split(',') %}<span>{{ tag }}</span>{% endfor %}
+      {% if settings and settings.pro_until %}<span>Pro</span>{% endif %}
+      {% if settings and settings.urgent_enabled %}<span>Срочный выезд</span>{% endif %}
+    </div>
+  </div>
+  <div class="profile-actions">
+    <strong>{{ master.rating }}★</strong>
+    <small>{{ master.completed_orders }} заказов</small>
+    <a class="btn btn-primary" href="{{ url_for('new_order', master_id=master.id) if g.user else url_for('register') }}">Заказать</a>
+    {% if g.user %}
+      <form method="post" action="{{ url_for('toggle_favorite', master_id=master.id) }}">
+        <button class="btn btn-light">{{ 'Убрать из избранного' if is_favorite else 'В избранное' }}</button>
+      </form>
+    {% endif %}
+  </div>
+</section>
+
+<section class="grid cards-3 section">
+  <div class="metric"><span>Опыт</span><strong>{{ master.experience_years }} лет</strong></div>
+  <div class="metric"><span>Ставка</span><strong>{{ master.hourly_rate }} ₽/ч</strong></div>
+  <div class="metric"><span>Статус</span><strong>{{ settings.work_status if settings else 'online' }}</strong></div>
+</section>
+
+<section class="section split">
+  <div class="panel dark">
+    <h2>Безопасность</h2>
+    <ul class="check-list">
+      <li>{{ master.safety_badge }}</li>
+      <li>История заказов хранится в системе</li>
+      <li>Поддержка помогает при споре</li>
+      <li>Рейтинг надёжности: {{ settings.reliability_score if settings else 95 }}%</li>
+    </ul>
+  </div>
+  <div class="panel">
+    <h2>Календарь</h2>
+    {% for a in availability %}
+      <div class="calendar-row"><strong>{{ a.weekday }}</strong><span>{{ a.start_time }} — {{ a.end_time }}</span></div>
+    {% else %}
+      <p class="muted">Мастер ещё не указал расписание.</p>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section split">
+  <div class="panel">
+    <h2>Портфолио</h2>
+    <div class="photo-grid">
+      {% for p in portfolio %}
+        <a class="photo-tile" target="_blank" href="{{ url_for('static', filename='uploads/' ~ p.filename) }}">
+          <img src="{{ url_for('static', filename='uploads/' ~ p.filename) }}" alt="portfolio">
+          <span>{{ p.title }}</span>
+        </a>
+      {% else %}
+        <p class="muted">Портфолио пока не заполнено.</p>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="panel">
+    <h2>Отзывы</h2>
+    {% for r in reviews %}
+      <div class="review">
+        <strong>{{ r.customer_name }} • {{ r.rating }}★</strong>
+        <p>{{ r.text }}</p>
+      </div>
+    {% else %}
+      <p class="muted">Пока нет отзывов.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

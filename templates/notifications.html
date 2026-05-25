@@ -1,0 +1,19 @@
+
+{% extends "base.html" %}
+{% block title %}Уведомления — HomeHero{% endblock %}
+{% block content %}
+<section class="page-head compact">
+  <div><h1>Уведомления</h1><p>События по заказам, поддержке, балансу и верификации.</p></div>
+  <form method="post"><button class="btn btn-light">Отметить прочитанными</button></form>
+</section>
+<section class="section panel">
+  {% for n in notifications %}
+    <div class="ticket-line {% if not n.is_read %}unread{% endif %}">
+      <div><strong>{{ n.title }}</strong><small>{{ n.created_at }}</small><p>{{ n.message }}</p></div>
+      <span>{{ 'Новое' if not n.is_read else 'OK' }}</span>
+    </div>
+  {% else %}
+    <p class="muted">Уведомлений пока нет.</p>
+  {% endfor %}
+</section>
+{% endblock %}
